@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 // ============================================================================
 // 1. MAIN ENTRY POINT
 // ============================================================================
-// Summary: Every Flutter app starts here. runApp() takes your root widget and
-// attaches it to the screen, kicking off the framework's build-and-render pipeline.
-// Reference: https://api.flutter.dev/flutter/widgets/runApp.html
+// Starts the Weather Command Center with the app-wide theme controller.
 void main() {
   runApp(const TactileDeckApp());
 }
@@ -13,10 +11,7 @@ void main() {
 // ============================================================================
 // 2. ROOT APPLICATION WIDGET (Manages Global Theme State)
 // ============================================================================
-// Summary: A StatefulWidget that owns the single source of truth for light/dark
-// mode. MaterialApp reads isDarkMode to pick a theme, and onToggleTheme lets the
-// child screen flip it via a callback — no need to pass data back up manually.
-// Reference: https://docs.flutter.dev/cookbook/design/themes
+// Owns the light/dark theme state and passes the toggle action to the dashboard.
 class TactileDeckApp extends StatefulWidget {
   const TactileDeckApp({super.key});
 
@@ -25,7 +20,7 @@ class TactileDeckApp extends StatefulWidget {
 }
 
 class _TactileDeckAppState extends State<TactileDeckApp> {
-  // Global theme toggle variable (carried over from Activity 02!)
+  // Current app-wide theme; the AppBar button flips this value.
   bool isDarkMode = true;
 
   @override
@@ -33,13 +28,13 @@ class _TactileDeckAppState extends State<TactileDeckApp> {
     return MaterialApp(
       title: 'Cyber-Tactile Control Studio',
       debugShowCheckedModeBanner: false,
-      // Apply Material 3 Dark or Light theme based on state
+      // MaterialApp selects the Material 3 theme from the current mode.
       theme: isDarkMode
           ? ThemeData.dark(useMaterial3: true)
           : ThemeData.light(useMaterial3: true),
       home: ControlDeckScreen(
         isDark: isDarkMode,
-        // Callback function to toggle theme mode from child widget
+        // Rebuilds the app and dashboard after the theme changes.
         onToggleTheme: () => setState(() => isDarkMode = !isDarkMode),
       ),
     );
@@ -49,10 +44,7 @@ class _TactileDeckAppState extends State<TactileDeckApp> {
 // ============================================================================
 // 3. MAIN DASHBOARD SCREEN (Stateful Controller)
 // ============================================================================
-// Summary: The screen users actually see. Its State object holds totalTaps,
-// powerLevel, and systemStatus, and rebuilds the metrics card, status banner,
-// buttons, and slider every time setState() runs.
-// Reference: https://api.flutter.dev/flutter/material/Scaffold-class.html
+// Owns dashboard-level weather telemetry and renders the control-deck screen.
 class ControlDeckScreen extends StatefulWidget {
   final bool isDark;
   final VoidCallback onToggleTheme;
@@ -67,12 +59,12 @@ class ControlDeckScreen extends StatefulWidget {
 }
 
 class _ControlDeckScreenState extends State<ControlDeckScreen> {
-  // --- Mutable State Variables (Day 3 Core Concept!) ---
-  int totalTaps = 0; // Increments on every button press
-  double powerLevel = 65.0; // Controlled by the interactive slider
-  String systemStatus = "READY"; // Displays latest activated command
+  // Dashboard values shared by the weather metrics, status banner, and slider.
+  int totalTaps = 0; // Number of completed weather-command taps.
+  double powerLevel = 65.0; // Current calibration value shown by the slider.
+  String systemStatus = "READY"; // Latest weather command reported to the user.
 
-  // Helper method to update dashboard state upon button press
+  // Records the selected weather command and refreshes the dashboard status.
   void _triggerAction(String actionName) {
     setState(() {
       totalTaps++;
@@ -82,10 +74,10 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Milestone 2: Detect 80% overload threshold
+    // Power above 80% switches the dashboard into severe-weather mode.
     final bool isOverload = powerLevel > 80;
 
-    // Dynamic background color adapting to current theme and overload state
+    // Background colors reflect both the selected theme and overload state.
     final screenBg = isOverload
         ? (widget.isDark ? const Color(0xFF3A1712) : const Color(0xFFFBE6DF))
         : (widget.isDark ? const Color(0xFF1E1F29) : const Color(0xFFE0E5EC));
@@ -109,7 +101,7 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          // Theme Toggle Button in the AppBar
+          // Switches between the dark cyber theme and light theme.
           IconButton(
             icon: Icon(widget.isDark ? Icons.light_mode : Icons.dark_mode),
             tooltip: 'Toggle Theme',
@@ -125,7 +117,7 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // --- TOP STATUS METRICS CARD ---
+              // Shows the total command count and current energy level.
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 width: double.infinity,
@@ -134,13 +126,20 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
                   color: cardBg,
                   borderRadius: BorderRadius.circular(20),
                   border: isOverload
-                      ? Border.all(color: Colors.redAccent.withValues(alpha: 0.6), width: 1.5)
+                      ? Border.all(
+                          color: Colors.redAccent.withValues(alpha: 0.6),
+                          width: 1.5,
+                        )
                       : null,
                   boxShadow: [
                     BoxShadow(
                       color: isOverload
-                          ? Colors.red.withValues(alpha: widget.isDark ? 0.4 : 0.2)
-                          : Colors.black.withValues(alpha: widget.isDark ? 0.3 : 0.08),
+                          ? Colors.red.withValues(
+                              alpha: widget.isDark ? 0.4 : 0.2,
+                            )
+                          : Colors.black.withValues(
+                              alpha: widget.isDark ? 0.3 : 0.08,
+                            ),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -149,7 +148,7 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    // Total Taps Counter
+                    // Total completed weather-command taps.
                     Column(
                       children: [
                         const Text(
@@ -170,13 +169,13 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
                         ),
                       ],
                     ),
-                    // Vertical Divider Line
+                    // Separates the tap count from the energy metric.
                     Container(
                       width: 1,
                       height: 40,
                       color: Colors.grey.withValues(alpha: 0.3),
                     ),
-                    // Energy / Power Level Indicator
+                    // Displays the slider value and overload accent color.
                     Column(
                       children: [
                         Text(
@@ -203,17 +202,22 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Live System Status Banner
+              // Reports the latest command or the 80% overload warning.
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isOverload
                       ? Colors.redAccent.withValues(alpha: 0.15)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   border: isOverload
-                      ? Border.all(color: Colors.redAccent.withValues(alpha: 0.4))
+                      ? Border.all(
+                          color: Colors.redAccent.withValues(alpha: 0.4),
+                        )
                       : null,
                 ),
                 child: Text(
@@ -225,13 +229,15 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
                     fontWeight: FontWeight.w600,
                     color: isOverload
                         ? Colors.redAccent
-                        : (widget.isDark ? Colors.tealAccent : Colors.teal.shade700),
+                        : (widget.isDark
+                              ? Colors.tealAccent
+                              : Colors.teal.shade700),
                   ),
                 ),
               ),
               const SizedBox(height: 28),
 
-              // --- 2x2 GRID OF TACTILE 3D BUTTONS (Weather Command Center) ---
+              // Four weather commands share the reusable TactileButton widget.
               Wrap(
                 spacing: 20,
                 runSpacing: 20,
@@ -269,7 +275,7 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
               ),
               const SizedBox(height: 36),
 
-              // --- INTERACTIVE CALIBRATION SLIDER ---
+              // Changes powerLevel continuously while the slider is dragged.
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -300,30 +306,27 @@ class _ControlDeckScreenState extends State<ControlDeckScreen> {
                 max: 100,
                 activeColor: primaryAccent,
                 inactiveColor: Colors.grey.withValues(alpha: 0.3),
-                // setState updates powerLevel immediately during slider drag
-              onChanged: (newVal) => setState(() => powerLevel = newVal),
-            ),
-          ],
+                // Rebuilds the overload styling as soon as the value crosses 80%.
+                onChanged: (newVal) => setState(() => powerLevel = newVal),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 // ============================================================================
 // 4. REUSABLE TACTILE 3D BUTTON WIDGET
 // ============================================================================
-// Summary: A self-contained StatefulWidget that tracks its own isPressed flag
-// and uses GestureDetector + two opposing BoxShadows to fake a physical
-// push-button depress-and-release effect — no external packages required.
-// Reference: https://api.flutter.dev/flutter/widgets/GestureDetector-class.html
+// Reusable weather command button with isolated press feedback and soft depth.
 class TactileButton extends StatefulWidget {
-  final IconData icon; // Icon to display in center
-  final String label; // Button title text
-  final Color accentColor; // Active glow color
-  final bool isDark; // Light or Dark theme mode
-  final VoidCallback onPressed; // Action callback triggered on tap
+  final IconData icon; // Weather symbol shown above the command label.
+  final String label; // Short command name shown below the icon.
+  final Color accentColor; // Color used while this command is pressed.
+  final bool isDark; // Selects dark or light button surface colors.
+  final VoidCallback onPressed; // Reports a completed command to the dashboard.
 
   const TactileButton({
     super.key,
@@ -339,12 +342,12 @@ class TactileButton extends StatefulWidget {
 }
 
 class _TactileButtonState extends State<TactileButton> {
-  // Local boolean state tracking whether button is currently being held down
+  // Press feedback belongs to this button, not to the parent dashboard.
   bool isPressed = false;
 
   @override
   Widget build(BuildContext context) {
-    // Determine dynamic background and shadow colors
+    // Derive the button surface and shadow palette from the active theme.
     final baseColor = widget.isDark
         ? const Color(0xFF222430)
         : const Color(0xFFE0E5EC);
@@ -352,28 +355,32 @@ class _TactileButtonState extends State<TactileButton> {
     final lightShadow = widget.isDark ? const Color(0xFF2F3244) : Colors.white;
 
     return GestureDetector(
-      // 1. User touches button -> depress button
-      onTapDown: (_) => setState(() => isPressed = true),
-      // 2. User releases button -> restore position and fire callback
+      // Contact starts: animate only this button into its pressed state.
+      onTapDown: (_) {
+        setState(() => isPressed = true);
+      },
+      // Release: restore this button, then report the completed command.
       onTapUp: (_) {
         setState(() => isPressed = false);
         widget.onPressed();
       },
-      // 3. User cancels touch -> restore position safely
-      onTapCancel: () => setState(() => isPressed = false),
+      // Drag or competing gesture: release visually without firing the command.
+      onTapCancel: () {
+        setState(() => isPressed = false);
+      },
       child: AnimatedContainer(
         duration: const Duration(
           milliseconds: 100,
-        ), // Smooth 100ms spring transition
+        ), // Quick 100 ms transition for press and release feedback.
         width: 140,
         height: 140,
         decoration: BoxDecoration(
           color: baseColor,
           borderRadius: BorderRadius.circular(24),
-          // Dual opposing BoxShadows create the 3D Neomorphic depth effect
+          // Opposing shadows simulate a raised surface and a pressed surface.
           boxShadow: isPressed
               ? [
-                  // Pressed (Sunken) Shadow Offsets
+                  // Smaller offsets make the button look pushed into the deck.
                   BoxShadow(
                     color: darkShadow.withValues(alpha: 0.5),
                     offset: const Offset(2, 2),
@@ -386,7 +393,7 @@ class _TactileButtonState extends State<TactileButton> {
                   ),
                 ]
               : [
-                  // Unpressed (Elevated) Shadow Offsets
+                  // Wider offsets make the button look raised from the deck.
                   BoxShadow(
                     color: darkShadow.withValues(alpha: 0.7),
                     offset: const Offset(8, 8),
@@ -402,7 +409,7 @@ class _TactileButtonState extends State<TactileButton> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Dynamic Icon that changes size and glows on press
+            // The weather icon shrinks and adopts its accent color on press.
             Icon(
               widget.icon,
               size: isPressed ? 40 : 46,
@@ -411,7 +418,7 @@ class _TactileButtonState extends State<TactileButton> {
                   : (widget.isDark ? Colors.white70 : Colors.black87),
             ),
             const SizedBox(height: 8),
-            // Button Label
+            // The command label uses the same pressed-state accent color.
             Text(
               widget.label,
               style: TextStyle(

@@ -1,7 +1,6 @@
-# In-Class-Activity-03-v2
 # 🎛️ Cyber-Tactile Control Studio (Flutter)
 
-A sleek, interactive 3D Neomorphic control deck built with Flutter & Dart, demonstrating advanced micro-interactions, responsive touch haptics, and state management.
+A sleek, interactive 3D Neomorphic control deck built with Flutter & Dart, demonstrating responsive visual touch feedback and state management.
 
 ---
 
@@ -18,14 +17,14 @@ This control studio is personalized as a high-tech **Weather Command Center**, o
 
 ## ✨ Features
 
-- **3D Mechanical Tactile Buttons**: Built using dual opposing `BoxShadow` physics and `GestureDetector` micro-interactions (`onTapDown`, `onTapUp`, `onTapCancel`).
-- **Live State Management**: Real-time tap counts, energy calibration sliders, and status monitors.
-- **Milestone 2: Interactive Overload Feedback (>80% Power Threshold)**:
+- **Weather Command Buttons**: SUN, RAIN, WIND, and STORM use `GestureDetector` callbacks and dual opposing `BoxShadow` values to create individual press-and-release feedback.
+- **Live Weather Telemetry**: Tracks completed command taps, displays the latest weather command, and exposes a power calibration slider.
+- **Severe Weather Overload Mode (>80% Power Threshold)**:
   - Dynamically triggers when the Power Calibration slider crosses 80%.
   - Shifts the entire deck background smoothly over 300ms using `AnimatedContainer` to emergency overload tones (`#3A1712` in Dark Mode, `#FBE6DF` in Light Mode).
   - Displays dynamic warning banners (`⚠️ WARNING: POWER EXCEEDS 80% THRESHOLD`), an overloaded title (`⚠️ SEVERE WEATHER OVERLOAD`), and crimson alert glow.
-- **Adaptive Theme System**: Seamless switching between Dark Cyber Mode and Light Neomorphic Mode with calculated opposing specular highlights and drop shadows.
-- **Modular Component Design**: Reusable `TactileButton` custom widget architecture with isolated internal touch state.
+- **Dark Cyber and Light Neomorphic Themes**: The AppBar toggle switches the dashboard between dark and light surface palettes while preserving the opposing shadow treatment.
+- **Reusable Weather Button Component**: A single `TactileButton` widget accepts each command's icon, label, accent color, theme, and action callback while keeping its `isPressed` state local.
 
 ---
 
@@ -47,7 +46,7 @@ Neomorphism (Soft UI) creates the illusion of physical extrusion and tactile dep
 2. **Pressed State (Sunken/Depressed)**:
    - When the user presses the screen (`onTapDown`), shadow offsets collapse to `Offset(2, 2)` and `Offset(-2, -2)` with blur radius `4`.
    - The icon size contracts from `46` to `40`, and the accent color glows, producing the optical illusion of physical mechanical compression.
-   - Releasing the finger (`onTapUp` or `onTapCancel`) restores the elevated shadow coordinates within a snappy 100ms spring curve.
+   - Releasing the finger (`onTapUp` or `onTapCancel`) restores the elevated shadow coordinates through the `AnimatedContainer`'s 100ms transition.
 
 ---
 
